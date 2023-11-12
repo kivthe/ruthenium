@@ -33,6 +33,7 @@ public:
     void SetPosition(int x, int y);
     void SetTitle(const char* title);
     void Clear();
+    void Update();
 
 
 public:
@@ -42,12 +43,6 @@ public:
     std::pair<int, int> GetDimensions() const;
     bool IsValid() const;
     std::string GetTitle() const;
-
-// Static methods
-public:
-    static void InitializeGraphicsFunctional();
-    static void SetBufferSwapInterval(int interval = 0);
-    static void PollEvents();
 
 // Private data
 private:

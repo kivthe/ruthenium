@@ -33,6 +33,7 @@ public:
     void SetPosition(int x, int y);
     void SetTitle(const char* title);
     void Clear();
+    void Update();
 
 public:
     bool IsOpen() const;
@@ -44,8 +45,6 @@ public:
 
 public:
     static void InitializeGraphicsFunctional();
-    static void SetBufferSwapInterval(int interval = 0);
-    static void PollEvents();
 
 // Static data
 private:
@@ -96,6 +95,9 @@ void Window::Impl::Open(int width, int height, const char* title)
     if(IsOpen()) Close();
     window_handle_ = window;
     window_open_flag_ = true;
+    MakeCurrent();
+    glfwSwapInterval(0);
+    Impl::InitializeGraphicsFunctional();
 }
 
 //------------------------------------------------------------
@@ -162,6 +164,13 @@ void Window::Impl::Clear()
 
 //------------------------------------------------------------
 
+void Window::Impl::Update()
+{
+    glfwPollEvents();
+}
+
+//------------------------------------------------------------
+
 bool Window::Impl::IsOpen() const
 {
     return window_open_flag_ == true;
@@ -214,6 +223,7 @@ std::string Window::Impl::GetTitle() const
 void Window::Impl::InitializeGraphicsFunctional()
 {
     if(glfwGetCurrentContext() == nullptr) throw std::runtime_error{"No valid OpenGL context detected to load graphics functional."};
+    glewExperimental = true;
     GLenum code = glewInit();
     if(code == GLEW_OK)
     {
@@ -224,20 +234,6 @@ void Window::Impl::InitializeGraphicsFunctional()
     const GLubyte* description;
     description = glewGetErrorString(code);
     throw std::runtime_error{std::string("Failed to initialize graphics functional. Internal API error message: ") + std::string(reinterpret_cast<const char*>(description))};
-}
-
-//------------------------------------------------------------
-
-void Window::Impl::SetBufferSwapInterval(int interval)
-{
-    glfwSwapInterval(interval);
-}
-
-//------------------------------------------------------------
-
-void Window::Impl::PollEvents()
-{
-    glfwPollEvents();
 }
 
 //------------------------------------------------------------
@@ -336,6 +332,13 @@ void Window::Clear()
 
 //------------------------------------------------------------
 
+void Window::Update()
+{
+    impl_->Update();
+}
+
+//------------------------------------------------------------
+
 bool Window::IsOpen() const
 {
     bool result = impl_->IsOpen();
@@ -380,27 +383,6 @@ std::string Window::GetTitle() const
 {
     std::string title = impl_->GetTitle();
     return title;
-}
-
-//------------------------------------------------------------
-
-void Window::InitializeGraphicsFunctional()
-{
-    Impl::InitializeGraphicsFunctional();
-}
-
-//------------------------------------------------------------
-
-void Window::SetBufferSwapInterval(int interval)
-{
-    Impl::SetBufferSwapInterval(interval);
-}
-
-//------------------------------------------------------------
-
-void Window::PollEvents()
-{
-    Impl::PollEvents();
 }
 
 //------------------------------------------------------------
