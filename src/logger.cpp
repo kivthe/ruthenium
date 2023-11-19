@@ -5,12 +5,15 @@
 #include <array>
 #include <chrono>
 #include <filesystem>
+#include <memory>
 
 #include "logger.h"
 #include "format.h"
 
 namespace ruthen
 {
+
+std::shared_ptr<Logger> SystemLogger = std::make_shared<Logger>("System Logger", Logger::kTrace);
 
 //------------------------------------------------------------
 //------------------------------------------------------------
@@ -35,7 +38,7 @@ Logger::Logger(const std::string& name) :
     level_{LogLevel::kTrace},
     logger_name_{name},
     log_details_recognition_flag_{true},
-    log_details_stack_limit_{100},
+    log_details_stack_limit_{500},
     log_details_{}
 {}
 
@@ -45,7 +48,7 @@ Logger::Logger(const std::string& name, LogLevel level) :
     level_{level},
     logger_name_{name},
     log_details_recognition_flag_{true},
-    log_details_stack_limit_{100},
+    log_details_stack_limit_{500},
     log_details_{}
 {}
 
@@ -125,12 +128,12 @@ bool Logger::WriteLogDetailsToFile(const std::string& file_name)
     for(const auto& details : log_details_)
     {
         file << std::string(50, '-') << '\n';
-        file << details.time_string << '\n';
-        file << details.since_epoch_nano << '\n';
-        file << details.name << '\n';
-        file << kLevelNames[static_cast<std::size_t>(details.level)] << '\n';
-        file << details.destination << '\n';
-        file << details.formated_message << '\n';
+        file << "Exact time              : " << details.time_string << '\n';
+        file << "Nanoseconds since epoch : " << details.since_epoch_nano << '\n';
+        file << "Log sender name         : " << details.name << '\n';
+        file << "Level of the log        : " << kLevelNames[static_cast<std::size_t>(details.level)] << '\n';
+        file << "Log file destination    : "<< details.destination << '\n';
+        file << "Formated log message    : "<< details.formated_message << '\n';
     }
     file.close();
     return true;

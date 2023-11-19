@@ -27,6 +27,7 @@ set(source
     src/window.cpp
     src/core.cpp
     src/logger.cpp
+    src/clock.cpp
 )
 set(options
     -Wall

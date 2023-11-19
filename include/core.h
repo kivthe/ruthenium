@@ -9,4 +9,10 @@ void TerminateAPIs();
 
 }
 
+#ifdef RUTHEN_NOTHROW
+#define THROW(exception)
+#else
+#define THROW(exception) throw exception
+#endif
+
 #endif

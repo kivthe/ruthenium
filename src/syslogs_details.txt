@@ -1,0 +1,14 @@
+--------------------------------------------------
+Exact time              : [19.11.2023 32:16:18]
+Nanoseconds since epoch : 1700406992794785815
+Log sender name         : System Logger
+Level of the log        : Info
+Log file destination    : /home/kivthe/development/graphics/ruthenium/src/syslogs.txt
+Formated log message    : Execution started
+--------------------------------------------------
+Exact time              : [19.11.2023 38:16:18]
+Nanoseconds since epoch : 1700406998498614809
+Log sender name         : System Logger
+Level of the log        : Info
+Log file destination    : /home/kivthe/development/graphics/ruthenium/src/syslogs.txt
+Formated log message    : Execution finished successfully

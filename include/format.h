@@ -2,17 +2,16 @@
 #define RUTHEN_FORMAT_H
 
 #include <string>
-#include <vector>
+#include <iostream>
 
 namespace ruthen
 {
 
-template <typename... T>
-std::string Format(const std::string &format, T... args)
+template <typename... T, std::size_t ARGC = sizeof...(T)>
+constexpr std::string Format(const std::string &format, T... args)
 {
-    if (format.empty()) return {};
-    std::vector<std::string> vec{args...};
-    if (vec.empty()) return format;
+    if (format.empty() || ARGC <= 0) return format;
+    std::string subs[ARGC]{args...};
     std::string result = format;
     std::size_t search_index = 0;
     std::size_t index = result.find('%', search_index);
@@ -39,19 +38,21 @@ std::string Format(const std::string &format, T... args)
         }
         std::string number = result.substr(index + 1, last_digit - index);
         std::int64_t n = std::stoi(number);
-        if (n < 1 || n > static_cast<std::int64_t>(vec.size()))
+        if (n < 1 || n > static_cast<std::int64_t>(ARGC))
         {
             search_index = index + 1;
             index = result.find('%', search_index);
             continue;
         }
         result.erase(index, number.size() + 1);
-        result.insert(index, vec[n - 1]);
+        result.insert(index, subs[n - 1]);
         search_index = index + 1;
         index = result.find('%', search_index);
     }
     return result;
 }
+
+#define SOURCE_LOC ::ruthen::Format("%1:%2", __FILE__, std::to_string(__LINE__))
 
 }
 #endif

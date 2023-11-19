@@ -4,6 +4,9 @@
 #include <string>
 #include <cstdint>
 #include <vector>
+#include <memory>
+
+#include "format.h"
 
 namespace ruthen
 {
@@ -66,6 +69,27 @@ private:
     std::size_t log_details_stack_limit_;
     std::vector<LogDetails> log_details_;
 };
+
+extern std::shared_ptr<Logger> SystemLogger;
+
+#define SYSLOGF_TRACE(format, ...)    ruthen::SystemLogger->Log(ruthen::Logger::kTrace,    "syslogs.txt", ::ruthen::Format(format, __VA_ARGS__))
+#define SYSLOGF_DEBUG(format, ...)    ruthen::SystemLogger->Log(ruthen::Logger::kDebug,    "syslogs.txt", ::ruthen::Format(format, __VA_ARGS__))
+#define SYSLOGF_INFO(format, ...)     ruthen::SystemLogger->Log(ruthen::Logger::kInfo,     "syslogs.txt", ::ruthen::Format(format, __VA_ARGS__))
+#define SYSLOGF_WARN(format, ...)     ruthen::SystemLogger->Log(ruthen::Logger::kWarn,     "syslogs.txt", ::ruthen::Format(format, __VA_ARGS__))
+#define SYSLOGF_ERROR(format, ...)    ruthen::SystemLogger->Log(ruthen::Logger::kError,    "syslogs.txt", ::ruthen::Format(format, __VA_ARGS__))
+#define SYSLOGF_CRITICAL(format, ...) ruthen::SystemLogger->Log(ruthen::Logger::kCritical, "syslogs.txt", ::ruthen::Format(format, __VA_ARGS__))
+#define SYSLOGF_CRASH(format, ...)    ruthen::SystemLogger->Log(ruthen::Logger::kCrash,    "syslogs.txt", ::ruthen::Format(format, __VA_ARGS__))
+
+#define SYSLOG_TRACE(message)    ruthen::SystemLogger->Log(ruthen::Logger::kTrace,    "syslogs.txt", message)
+#define SYSLOG_DEBUG(message)    ruthen::SystemLogger->Log(ruthen::Logger::kDebug,    "syslogs.txt", message)
+#define SYSLOG_INFO(message)     ruthen::SystemLogger->Log(ruthen::Logger::kInfo,     "syslogs.txt", message)
+#define SYSLOG_WARN(message)     ruthen::SystemLogger->Log(ruthen::Logger::kWarn,     "syslogs.txt", message)
+#define SYSLOG_ERROR(message)    ruthen::SystemLogger->Log(ruthen::Logger::kError,    "syslogs.txt", message)
+#define SYSLOG_CRITICAL(message) ruthen::SystemLogger->Log(ruthen::Logger::kCritical, "syslogs.txt", message)
+#define SYSLOG_CRASH(message)    ruthen::SystemLogger->Log(ruthen::Logger::kCrash,    "syslogs.txt", message)
+
+#define SYSLOG_WRITE_DETAILS()       ruthen::SystemLogger->WriteLogDetailsToFile("syslogs_details.txt")
+#define SYSLOG_CLEAR_DETAILS()       ruthen::SystemLogger->ClearLogDetails();
 
 }
 

@@ -5,7 +5,9 @@
 #include "GL/glew.h"
 #include "GLFW/glfw3.h"
 
+#include "core.h"
 #include "window.h"
+#include "logger.h"
 
 namespace ruthen
 {
@@ -77,9 +79,24 @@ Window::Impl::Impl() :
 
 void Window::Impl::Open(int width, int height, const char* title)
 {
-    if(width <= 0) throw std::invalid_argument{"Invalid \'width\' argument for window construction."};
-    if(height <= 0) throw std::invalid_argument{"Invalid \'height\' argument for window construction."};
-    if(title == nullptr || title[0] == 0) throw std::invalid_argument{"Invalid \'title\' argument for window construction."};
+    if(width <= 0) 
+    {
+        SYSLOGF_ERROR("Invalid \'width\' argument for window construction (%1)", std::to_string(width));
+        THROW(std::invalid_argument{"Invalid \'width\' argument for window construction"});
+        return;
+    }
+    if(height <= 0)
+    {
+        SYSLOGF_ERROR("Invalid \'height\' argument for window construction (%1)", std::to_string(height)); 
+        THROW(std::invalid_argument{"Invalid \'height\' argument for window construction"});
+        return;
+    }
+    if(title == nullptr || title[0] == 0)
+    {
+        SYSLOGF_ERROR("Invalid \'title\' argument for window construction (%1)", title);
+        THROW(std::invalid_argument{"Invalid \'title\' argument for window construction"});
+        return;
+    }
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -89,8 +106,9 @@ void Window::Impl::Open(int width, int height, const char* title)
     {
         const char* error_string;
         glfwGetError(&error_string);
-        if(error_string == nullptr) throw std::runtime_error{"Failed to create an instance of a window. No internal API error message provided."};
-        else throw std::runtime_error{std::string("Failed to create an instance of a window. Internal API message: ") + std::string(error_string)};
+        SYSLOGF_ERROR("Failed to create an instance of a window. Internal API message: %1", error_string);
+        THROW(std::runtime_error{"Failed to create an instance of a window"});
+        return;
     }
     if(IsOpen()) Close();
     window_handle_ = window;
@@ -104,7 +122,12 @@ void Window::Impl::Open(int width, int height, const char* title)
 
 void Window::Impl::Close()
 {
-    if(IsClosed()) throw std::invalid_argument{"Failed to close a non-existent window."};
+    if(IsClosed()) 
+    {
+        SYSLOG_ERROR("Failed to close a non-existent window");
+        THROW(std::invalid_argument{"Failed to close a non-existent window"});
+        return;
+    }
     glfwDestroyWindow(window_handle_);
     window_handle_ = nullptr;
     window_open_flag_ = false;
@@ -115,7 +138,12 @@ void Window::Impl::Close()
 
 void Window::Impl::MakeCurrent()
 {
-    if(!IsValid()) throw std::invalid_argument{"Failed to make a context of non-existent window current."};
+    if(!IsValid()) 
+    {
+        SYSLOG_ERROR("Failed to make a context current of a non-existent window current");
+        THROW(std::invalid_argument{"Failed to make a context current of a non-existent window current"});
+        return;
+    }
     glfwMakeContextCurrent(window_handle_);
 }
 
@@ -123,7 +151,12 @@ void Window::Impl::MakeCurrent()
 
 void Window::Impl::SwapBuffers()
 {
-    if(!IsValid()) throw std::invalid_argument{"Failed to swap buffers of non-existent window."};
+    if(!IsValid()) 
+    {
+        SYSLOG_ERROR("Failed to swap buffers of a non-existent window");
+        THROW(std::invalid_argument{"Failed to swap buffers of a non-existent window"});
+        return;
+    }
     glfwSwapBuffers(window_handle_);
 }
 
@@ -131,9 +164,24 @@ void Window::Impl::SwapBuffers()
 
 void Window::Impl::SetSize(int width, int height)
 {
-    if(!IsValid()) throw std::invalid_argument{"Failed to set the size of a non-existent window."};
-    if(width <= 0) throw std::invalid_argument{"Invalid \'width\' argument for window resize."};
-    if(height <= 0) throw std::invalid_argument{"Invalid \'height\' argument for window resize."};
+    if(!IsValid()) 
+    {
+        SYSLOG_ERROR("Failed to set the size of a non-existent window");
+        THROW(std::invalid_argument{"Failed to set the size of a non-existent window"});
+        return;
+    }
+    if(width <= 0)
+    {
+        SYSLOG_ERROR("Invalid \'width\' argument for window resize");
+        THROW(std::invalid_argument{"Invalid \'width\' argument for window resize"});
+        return;
+    }
+    if(height <= 0)
+    {
+        SYSLOG_ERROR("Invalid \'height\' argument for window resize");
+        THROW(std::invalid_argument{"Invalid \'height\' argument for window resize"});
+        return;
+    }
     glfwSetWindowSize(window_handle_, width, height);
 }
 
@@ -141,7 +189,12 @@ void Window::Impl::SetSize(int width, int height)
 
 void Window::Impl::SetPosition(int x, int y)
 {
-    if(!IsValid()) throw std::invalid_argument{"Failed to set the position of a non-existent window."};
+    if(!IsValid())
+    {
+        SYSLOG_ERROR("Failed to set the position of a non-existent window");
+        THROW(std::invalid_argument{"Failed to set the position of a non-existent window"});
+        return;
+    }
     glfwSetWindowPos(window_handle_, x, y);
 }
 
@@ -149,7 +202,12 @@ void Window::Impl::SetPosition(int x, int y)
 
 void Window::Impl::SetTitle(const char* title)
 {
-    if(!IsValid()) throw std::invalid_argument{"Failed to set the title of a non-existent window."};
+    if(!IsValid())
+    {
+        SYSLOG_ERROR("Failed to set the title of a non-existent window");
+        THROW(std::invalid_argument{"Failed to set the title of a non-existent window"});
+        return;
+    }
     window_title_ = title;
     glfwSetWindowTitle(window_handle_, title);
 }
@@ -158,7 +216,12 @@ void Window::Impl::SetTitle(const char* title)
 
 void Window::Impl::Clear()
 {
-    if(!IsValid()) throw std::invalid_argument{"Failed to clear a non-existent window."};
+    if(!IsValid())
+    {
+        SYSLOG_ERROR("Failed to clear a non-existent window");
+        THROW(std::invalid_argument{"Failed to clear a non-existent window"});
+        return;
+    }
     glClear(GL_COLOR_BUFFER_BIT);
 }
 
@@ -187,7 +250,12 @@ bool Window::Impl::IsClosed() const
 
 bool Window::Impl::ShouldClose() const
 {
-    if(!IsValid()) throw std::invalid_argument{"Failed to check the state of a non-existent window."};
+    if(!IsValid()) 
+    {
+        SYSLOG_ERROR("Failed to check the state of a non-existent window");
+        THROW(std::invalid_argument{"Failed to check the state of a non-existent window"});
+        return true;
+    }
     bool result = glfwWindowShouldClose(window_handle_);
     return result;
 }
@@ -196,7 +264,11 @@ bool Window::Impl::ShouldClose() const
 
 std::pair<int, int> Window::Impl::GetDimensions() const
 {
-    if(!IsValid()) throw std::invalid_argument{"Failed to obtain the dimensions of a non-existent window."};
+    if(!IsValid()) 
+    {
+        SYSLOG_ERROR("Failed to obtain the dimensions of a non-existent window");
+        throw std::invalid_argument{"Failed to obtain the dimensions of a non-existent window"};
+    }
     int width, height;
     glfwGetWindowSize(window_handle_, &width, &height);
     return {width, height};
@@ -214,7 +286,12 @@ bool Window::Impl::IsValid() const
 
 std::string Window::Impl::GetTitle() const
 {
-    if(!IsValid()) throw std::invalid_argument{"Failed to obtain the title of a non-existent window."};
+    if(!IsValid())
+    {
+        SYSLOG_ERROR("Failed to obtain the title of a non-existent window");
+        THROW(std::invalid_argument{"Failed to obtain the title of a non-existent window"});
+        return "";
+    }
     return window_title_;
 }
 
@@ -222,7 +299,12 @@ std::string Window::Impl::GetTitle() const
 
 void Window::Impl::InitializeGraphicsFunctional()
 {
-    if(glfwGetCurrentContext() == nullptr) throw std::runtime_error{"No valid OpenGL context detected to load graphics functional."};
+    if(glfwGetCurrentContext() == nullptr) 
+    {
+        SYSLOG_ERROR("No valid OpenGL context detected to load graphics functional");
+        THROW(std::runtime_error{"No valid OpenGL context detected to load graphics functional"});
+        return;
+    }
     glewExperimental = true;
     GLenum code = glewInit();
     if(code == GLEW_OK)
@@ -233,7 +315,8 @@ void Window::Impl::InitializeGraphicsFunctional()
     kOpenGLInitFlag = false;
     const GLubyte* description;
     description = glewGetErrorString(code);
-    throw std::runtime_error{std::string("Failed to initialize graphics functional. Internal API error message: ") + std::string(reinterpret_cast<const char*>(description))};
+    SYSLOGF_ERROR("Failed to initialize graphics functional. Internal API message: %1", reinterpret_cast<const char*>(description));
+    THROW(std::runtime_error{"Failed to initialize graphics functional"});
 }
 
 //------------------------------------------------------------
