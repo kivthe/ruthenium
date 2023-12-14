@@ -4,7 +4,7 @@ set(output_name "${PROJECT_NAME}-${PROJECT_VERSION}")
 set(libs
     libglfw3.a
     GL
-    GLEW
+    libGLEW.a
     X11
     pthread
     Xrandr
@@ -20,14 +20,16 @@ set(defs
 set(include
     include
     vendor
-    include/gl
+    
 )
 set(source
     src/main.cpp
     src/window.cpp
     src/core.cpp
-    src/logger.cpp
     src/clock.cpp
+
+    src/subsys/log_manager.cpp
+    #src/memory/stack_allocator.cpp
 )
 set(options
     -Wall
@@ -36,8 +38,13 @@ set(options
     -std=c++17
     -g3
     -ggdb3
+
+    -fmax-errors=10
 )
 add_executable(${output_name})
+
+
+
 target_link_directories(${output_name} PRIVATE ${libdirs})
 target_link_libraries(${output_name} PRIVATE ${libs})
 target_compile_definitions(${output_name} PRIVATE ${defs})

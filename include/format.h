@@ -2,57 +2,35 @@
 #define RUTHEN_FORMAT_H
 
 #include <string>
-#include <iostream>
+#include <type_traits>
+#include <array>
 
 namespace ruthen
 {
 
-template <typename... T, std::size_t ARGC = sizeof...(T)>
-constexpr std::string Format(const std::string &format, T... args)
+
+template<char EscChar = '%', typename... Args>
+constexpr std::string Format(const std::string& format, Args&&... args)
 {
-    if (format.empty() || ARGC <= 0) return format;
-    std::string subs[ARGC]{args...};
+    static_assert((std::is_convertible<Args, std::string>::value && ...), "Can not convert parameter pack arguments to std::string");
+    if constexpr (sizeof...(Args) <= 0) return format;
+    std::array<std::string, sizeof...(Args)> arr{static_cast<std::string>(std::forward<Args>(args))...};
     std::string result = format;
-    std::size_t search_index = 0;
-    std::size_t index = result.find('%', search_index);
-    while (index != std::string::npos)
+    for(std::size_t index = 0; index < result.size(); ++index)
     {
-        if (!std::isdigit(result[index + 1]))
-        {
-            search_index = index + 1;
-            index = result.find('%', search_index);
-            continue;
-        }
-        std::size_t last_digit = index;
-        for (std::size_t i = last_digit + 1; i < result.size(); ++i)
-        {
-            if (!std::isdigit(result[i]))
-                break;
-            ++last_digit;
-        }
-        if (last_digit == index)
-        {
-            search_index = index + 1;
-            index = result.find('%', search_index);
-            continue;
-        }
-        std::string number = result.substr(index + 1, last_digit - index);
-        std::int64_t n = std::stoi(number);
-        if (n < 1 || n > static_cast<std::int64_t>(ARGC))
-        {
-            search_index = index + 1;
-            index = result.find('%', search_index);
-            continue;
-        }
-        result.erase(index, number.size() + 1);
-        result.insert(index, subs[n - 1]);
-        search_index = index + 1;
-        index = result.find('%', search_index);
+        if(result[index] != EscChar || index + 1 >= result.size()) continue;
+        if(result[index + 1] == EscChar) { result.erase(index + 1, 1); continue; }
+        if(!std::isdigit(result[index + 1])) continue;
+        std::size_t last_digit = index + 1;
+        while(std::isdigit(last_digit) && last_digit + 1 < result.size()) {++last_digit;}
+        std::size_t arr_index = std::stoul(result.substr(index + 1, last_digit - index)) - 1;
+        if(arr_index + 1 > arr.size()) continue;
+        result.replace(index, last_digit - index + 1, arr[arr_index]);
     }
     return result;
 }
 
-#define SOURCE_LOC ::ruthen::Format("%1:%2", __FILE__, std::to_string(__LINE__))
+
 
 }
 #endif

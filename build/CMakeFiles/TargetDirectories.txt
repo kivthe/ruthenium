@@ -1,0 +1,3 @@
+/home/kivthe/Development/Graphics/ruthenium/build/CMakeFiles/ruthenium-1.0.0.0.dir
+/home/kivthe/Development/Graphics/ruthenium/build/CMakeFiles/edit_cache.dir
+/home/kivthe/Development/Graphics/ruthenium/build/CMakeFiles/rebuild_cache.dir

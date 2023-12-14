@@ -7,7 +7,6 @@
 
 #include "core.h"
 #include "window.h"
-#include "logger.h"
 
 namespace ruthen
 {
@@ -23,6 +22,7 @@ class Window::Impl
 // Constructors, operators and destructor
 public:
     Impl();
+    ~Impl();
 
 
 // Methods
@@ -36,6 +36,7 @@ public:
     void SetTitle(const char* title);
     void Clear();
     void Update();
+    void InitializeGraphicsFunctional();
 
 public:
     bool IsOpen() const;
@@ -43,14 +44,8 @@ public:
     bool ShouldClose() const;
     std::pair<int, int> GetDimensions() const;
     bool IsValid() const;
+    bool GraphicsInitialized() const;
     std::string GetTitle() const;
-
-public:
-    static void InitializeGraphicsFunctional();
-
-// Static data
-private:
-    static bool kOpenGLInitFlag;
 
 // Private data
 private:
@@ -58,13 +53,10 @@ private:
     std::string window_title_;
     bool window_open_flag_;
     bool window_resize_flag_;
+    bool opengl_init_flag_;
 
 
 };
-
-//------------------------------------------------------------
-
-bool Window::Impl::kOpenGLInitFlag = false;
 
 //------------------------------------------------------------
 
@@ -72,8 +64,14 @@ Window::Impl::Impl() :
     window_handle_{nullptr},
     window_title_{""},
     window_open_flag_{false},
-    window_resize_flag_{true}
+    window_resize_flag_{true},
+    opengl_init_flag_{false}
 {}
+
+Window::Impl::~Impl()
+{
+    Close();
+}
 
 //------------------------------------------------------------
 
@@ -97,8 +95,8 @@ void Window::Impl::Open(int width, int height, const char* title)
         THROW(std::invalid_argument{"Invalid \'title\' argument for window construction"});
         return;
     }
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
     GLFWwindow* window = glfwCreateWindow(width, height, title, nullptr, nullptr);
@@ -122,16 +120,12 @@ void Window::Impl::Open(int width, int height, const char* title)
 
 void Window::Impl::Close()
 {
-    if(IsClosed()) 
-    {
-        SYSLOG_ERROR("Failed to close a non-existent window");
-        THROW(std::invalid_argument{"Failed to close a non-existent window"});
-        return;
-    }
+    if(IsClosed()) return;
     glfwDestroyWindow(window_handle_);
     window_handle_ = nullptr;
     window_open_flag_ = false;
     window_title_ = "";
+    opengl_init_flag_ = false;
 }
 
 //------------------------------------------------------------
@@ -284,6 +278,13 @@ bool Window::Impl::IsValid() const
 
 //------------------------------------------------------------
 
+bool Window::Impl::GraphicsInitialized() const
+{
+    return opengl_init_flag_;
+}
+
+//------------------------------------------------------------
+
 std::string Window::Impl::GetTitle() const
 {
     if(!IsValid())
@@ -302,6 +303,7 @@ void Window::Impl::InitializeGraphicsFunctional()
     if(glfwGetCurrentContext() == nullptr) 
     {
         SYSLOG_ERROR("No valid OpenGL context detected to load graphics functional");
+        opengl_init_flag_ = false;
         THROW(std::runtime_error{"No valid OpenGL context detected to load graphics functional"});
         return;
     }
@@ -309,10 +311,10 @@ void Window::Impl::InitializeGraphicsFunctional()
     GLenum code = glewInit();
     if(code == GLEW_OK)
     {
-        kOpenGLInitFlag = true;
+        opengl_init_flag_ = true;
         return;
     }
-    kOpenGLInitFlag = false;
+    opengl_init_flag_ = false;
     const GLubyte* description;
     description = glewGetErrorString(code);
     SYSLOGF_ERROR("Failed to initialize graphics functional. Internal API message: %1", reinterpret_cast<const char*>(description));
@@ -458,6 +460,13 @@ bool Window::IsValid() const
 {
     bool result = impl_->IsValid();
     return result;
+}
+
+//------------------------------------------------------------
+
+bool Window::GraphicsInitialized() const
+{
+    return impl_->GraphicsInitialized();
 }
 
 //------------------------------------------------------------

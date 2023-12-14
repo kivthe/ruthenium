@@ -4,8 +4,9 @@ Ruthenium is a graphics engine project, aiming to create a simple interface to a
 [ruthenium](https://github.com/kivthe/klavier) is currently in the early stage of development.
 # Download
 - No download resource yet
-# Installation
-- No installation guide yet
+# Compilation
+- cmake CMakeLists.txt -B build -S ${PWD}
+- make -C build -j4
 # License
 - No license has been set yet
 # Authors

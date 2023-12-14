@@ -4,6 +4,9 @@
 #include <utility>
 #include <memory>
 
+#define SYSLOG_ERROR(x)
+#define SYSLOGF_ERROR(x, ...)
+
 namespace ruthen
 {
 
@@ -42,6 +45,7 @@ public:
     bool ShouldClose() const;
     std::pair<int, int> GetDimensions() const;
     bool IsValid() const;
+    bool GraphicsInitialized() const;
     std::string GetTitle() const;
 
 // Private data
