@@ -8,7 +8,7 @@ Ruthenium is a graphics engine project, aiming to create a simple interface to a
 - cmake CMakeLists.txt -B build -S ${PWD}
 - make -C build -j4
 # License
-- No license has been set yet
+- 'ruthenium' is distributed under MIT Licence.
 # Authors
 - Igor Kuznetsov (igor.kuznetsov2019@gmail.com)
 # Contributors
