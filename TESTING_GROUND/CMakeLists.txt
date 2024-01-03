@@ -3,16 +3,16 @@
 
 cmake_minimum_required(VERSION 3.22)
 project(ruthenium_testing_ground LANGUAGES CXX VERSION 1.0.0.0)
-set(output_name "${PROJECT_NAME}-${PROJECT_VERSION}")
+set(output_name "${PROJECT_NAME}")
 set(libs
     #libglfw3.a
-    GL
+    #GL
     #libGLEW.a
-    X11
+    #X11
     pthread
-    Xrandr
-    Xi
-    dl
+    #Xrandr
+    #Xi
+    #dl
 )
 set(libdirs
     lib
@@ -21,9 +21,14 @@ set(defs
 )
 set(include
     include
+    include/allocators
+    include/scripting
+
     vendor
 )
 set(source
+  src/main.cpp
+  src/allocators/linear_allocator.cpp
 )
 set(options
     -Wall
